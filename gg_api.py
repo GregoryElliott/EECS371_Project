@@ -14,6 +14,8 @@ import string
 import pickle
 import os.path
 from awards_parse import *
+from rdflib import Graph, Literal, BNode, Namespace, RDF, URIRef
+from rdflib.namespace import DC, FOAF
 
 IGNORE_WORDS = ['best', 'look', 'television', 'tv', 'movie', 'musical', 'globes', 'congrats', 'congratulations', 'globe', 'i\'m', 'motion', 'picture', 'actor', 'actress', 'drama', 'comedy', 'rt', 'demille', 'award']
     
@@ -831,6 +833,37 @@ def start_interface():
             else:
                 print "Unknown command. Type help for commands list or exit to quit"
 
+def generate_graph(year):
+    hosts = get_hosts(year)
+    winners = get_winner(year)
+    g = Graph()
+    golden_globe = BNode()
+    g.add( (golden_globe, RDF.type, Literal("award_show") ) )
+    for host in hosts:
+        #add host
+        h = BNode()
+        g.add( (golden_globe, Literal("has a host"), h ) )
+        g.add( (h, FOAF.name, Literal(host) ) ) 
+        g.add( (h, RDF.type, FOAF.Person ) ) 
+    for award in OFFICIAL_AWARDS:
+        #add award
+        a = BNode()
+        g.add( (golden_globe, Literal("has award"), a ) )
+        g.add( (a, FOAF.name, Literal(award) ) ) 
+        g.add( (a, RDF.type, FOAF.Award ) ) 
+        #add winner to the corresponding award
+        winner = winners[award]
+        w = BNode()
+        g.add( (a, Literal("has winner"), w ) )
+        g.add( (w, FOAF.name, Literal(winner) ) )
+        if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
+            #change this from person to actor/director
+            g.add( (w, RDF.type, FOAF.Person ) ) 
+        elif 'score' in award or 'song' in award:
+            g.add( (w, RDF.type, FOAF.Song ) )  
+        else:
+            g.add( (w, RDF.type, FOAF.Movie ) )  
+                
 def main():
     '''This function calls your program. Typing "python gg_api.py"
     will run this function. Or, in the interpreter, import gg_api
@@ -838,7 +871,8 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns.'''
     pre_ceremony()
-    start_interface()
+    #start_interface()
+    generate_graph('2013')
 
     return
 
