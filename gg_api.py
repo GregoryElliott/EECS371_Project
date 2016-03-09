@@ -882,6 +882,7 @@ def generate_graph(year):
                     g.add( (n, RDF.type, FOAF.Movie ) )  
         except:
             continue
+    print g.serialize(format='n3')
                 
 def main():
     '''This function calls your program. Typing "python gg_api.py"
