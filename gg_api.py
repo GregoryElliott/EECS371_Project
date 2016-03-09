@@ -839,7 +839,9 @@ def start_interface():
 def generate_graph(year):
     hosts = get_hosts(year)
     winners = get_winner(year)
-    nominees = web_scraping.main(year)
+    nominees = web_scraping.get_nominees(year)
+    presenters = web_scraping.get_presenters(year)
+
     g = Graph()
     golden_globe = BNode()
     g.add( (golden_globe, RDF.type, Literal("award_show") ) )
@@ -875,11 +877,21 @@ def generate_graph(year):
                 g.add( (n, FOAF.name, Literal(nominee) ) )
                 if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
                     #change this from person to actor/director
-                    g.add( (n, RDF.type, FOAF.Person ) ) 
+                    g.add( (n, RDF.type, FOAF.Person ) )
                 elif 'score' in award or 'song' in award:
                     g.add( (n, RDF.type, FOAF.Song ) )  
                 else:
                     g.add( (n, RDF.type, FOAF.Movie ) )  
+        except:
+            continue
+
+        # add presenters to the corresponding award
+        try:
+            for presenter in presenters[award]:
+                p = BNode()
+                g.add((a, Literal("has presenter"), p))
+                g.add((p, FOAF.name, Literal(presenters)))
+                g.add((p, RDF.type, FOAF.Person))
         except:
             continue
                 
