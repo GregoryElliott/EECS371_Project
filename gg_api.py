@@ -837,6 +837,7 @@ def start_interface():
                 print "Unknown command. Type help for commands list or exit to quit"
 
 def generate_graph(year):
+
     if not os.path.exists(str('hosts%s.json'%year)):
         with open(str('hosts%s.json'%year), "w") as hosts_json:
             hosts = get_hosts(year)
@@ -854,6 +855,9 @@ def generate_graph(year):
         with open(str('winners%s.json'%year), "r") as winners_json:      
             winners = json.load(winners_json)  
     nominees = web_scraping.main(year)
+    presenters = web_scraping.get_presenters(year)
+
+
     g = Graph()
     golden_globe = BNode()
     g.add( (golden_globe, RDF.type, Literal("award_show") ) )
@@ -894,7 +898,18 @@ def generate_graph(year):
             elif 'score' in award or 'song' in award:
                 g.add( (n, RDF.type, FOAF.Song ) )  
             else:
-                g.add( (n, RDF.type, FOAF.Movie ) )  
+                g.add( (n, RDF.type, FOAF.Movie ) )
+
+        # add presenters to the corresponding award
+        try:
+            for presenter in presenters[award]:
+                p = BNode()
+                g.add((a, Literal("has presenter"), p))
+                g.add((p, FOAF.name, Literal(presenters)))
+                g.add((p, RDF.type, FOAF.Person))
+        except:
+            continue
+
     print g.serialize(format='n3')
                 
 def main():
