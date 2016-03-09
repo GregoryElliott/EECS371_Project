@@ -16,7 +16,14 @@ def main(year):
         this_cat = soup.find("h2", text=h.text).next_sibling.next_sibling.findAll("a")
         if str("awards for %s" % year) in str(h.text).lower():
             continue
-        if "name" in str(this_cat[0]):
+        if "song" in str(h.text).lower() or "score" in str(h.text).lower():
+            for a in this_cat:
+                if "title" in str(a) and a.text != "":
+                    try:
+                        categories_and_nominees_dict[str(h.text).lower()].append(str(a.text).lower())
+                    except:
+                        continue
+        elif "name" in str(this_cat[0]):
             for a in this_cat:
                 if "name" in str(a) and a.text != "":
                     try:
