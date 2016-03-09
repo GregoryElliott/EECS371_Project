@@ -856,6 +856,8 @@ def generate_graph(year):
     nominees = web_scraping.main(year)
     g = Graph()
     golden_globe = BNode()
+    #host_predicate = BNode()
+    #g.add( (host_predicate, RDF.predicate, Literal("has a host")))
     g.add( (golden_globe, RDF.type, Literal("award_show") ) )
     for host in hosts:
         #add host
