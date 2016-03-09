@@ -16,11 +16,14 @@ import os.path
 from awards_parse import *
 from rdflib import Graph, Literal, BNode, Namespace, RDF, URIRef
 from rdflib.namespace import DC, FOAF
+import requests
+from bs4 import BeautifulSoup
+import web_scraping
 
 IGNORE_WORDS = ['best', 'look', 'television', 'tv', 'movie', 'musical', 'globes', 'congrats', 'congratulations', 'globe', 'i\'m', 'motion', 'picture', 'actor', 'actress', 'drama', 'comedy', 'rt', 'demille', 'award']
     
 OFFICIAL_AWARDS = [
-    'cecil b. demille award',
+    #'cecil b. demille award',
     'best motion picture - drama',
     'best performance by an actress in a motion picture - drama',
     'best performance by an actor in a motion picture - drama',
@@ -45,7 +48,7 @@ OFFICIAL_AWARDS = [
     'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 
 REGEX_AWARDS = {
-'cecil b. demille award': re.compile(r'((cecil)|(cecil demille)|(cecil b. demille)|(b. demille)|(demille))( award)?', re.IGNORECASE),
+#'cecil b. demille award': re.compile(r'((cecil)|(cecil demille)|(cecil b. demille)|(b. demille)|(demille))( award)?', re.IGNORECASE),
 'best motion picture - drama': re.compile(r'(golden globe for )?best motion picture(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best motion picture - comedy or musical': re.compile(r'(golden globe for )?best motion picture(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actress in a motion picture - drama': re.compile(r'best( performance by an)? actress(( in a)|( -))?( motion picture)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
@@ -836,6 +839,7 @@ def start_interface():
 def generate_graph(year):
     hosts = get_hosts(year)
     winners = get_winner(year)
+    nominees = web_scraping.main(year)
     g = Graph()
     golden_globe = BNode()
     g.add( (golden_globe, RDF.type, Literal("award_show") ) )
@@ -863,6 +867,21 @@ def generate_graph(year):
             g.add( (w, RDF.type, FOAF.Song ) )  
         else:
             g.add( (w, RDF.type, FOAF.Movie ) )  
+        #add nominees to the corresponding award
+        try:
+            for nominee in nominees[award]:
+                n = BNode()
+                g.add( (a, Literal("has nominee"), n ) )
+                g.add( (n, FOAF.name, Literal(nominee) ) )
+                if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
+                    #change this from person to actor/director
+                    g.add( (n, RDF.type, FOAF.Person ) ) 
+                elif 'score' in award or 'song' in award:
+                    g.add( (n, RDF.type, FOAF.Song ) )  
+                else:
+                    g.add( (n, RDF.type, FOAF.Movie ) )  
+        except:
+            continue
                 
 def main():
     '''This function calls your program. Typing "python gg_api.py"
