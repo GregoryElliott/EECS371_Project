@@ -41,11 +41,11 @@ OFFICIAL_AWARDS = [
     'best television series - comedy or musical',
     'best performance by an actress in a television series - comedy or musical',
     'best performance by an actor in a television series - comedy or musical',
-    'best mini-series or motion picture made for television',
-    'best performance by an actress in a mini-series or motion picture made for television',
-    'best performance by an actor in a mini-series or motion picture made for television',
-    'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
-    'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
+    'best miniseries or motion picture made for television',
+    'best performance by an actress in a miniseries or motion picture made for television',
+    'best performance by an actor in a miniseries or motion picture made for television',
+    'best performance by an actress in a supporting role in a series, miniseries or motion picture made for television',
+    'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television']
 
 REGEX_AWARDS = {
 #'cecil b. demille award': re.compile(r'((cecil)|(cecil demille)|(cecil b. demille)|(b. demille)|(demille))( award)?', re.IGNORECASE),
@@ -65,15 +65,15 @@ REGEX_AWARDS = {
 'best original song - motion picture': re.compile(r'(golden globe for )?best (original )?song', re.IGNORECASE),
 'best television series - drama': re.compile(r'best ((television)|(TV))( series)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best television series - comedy or musical': re.compile(r'best ((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
-'best mini-series or motion picture made for television': re.compile(r'best ((((TV)|(television)) ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture)))|(((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)? ((television)|(TV))))', re.IGNORECASE),
-'best performance by an actress in a mini-series or motion picture made for television': re.compile(r'best( performance)?( by an)? actress( in)?( a)?(,)? ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)?((/)|( ))?(or )?((television)|(TV))', re.IGNORECASE),
-'best performance by an actor in a mini-series or motion picture made for television': re.compile(r'Best( performance)?( by an)? actor( in)?( a)? ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)?((/)|( ))?( or)?((television)|(TV))', re.IGNORECASE),
+'best miniseries or motion picture made for television': re.compile(r'best ((((TV)|(television)) ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture)))|(((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)? ((television)|(TV))))', re.IGNORECASE),
+'best performance by an actress in a miniseries or motion picture made for television': re.compile(r'best( performance)?( by an)? actress( in)?( a)?(,)? ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)?((/)|( ))?(or )?((television)|(TV))', re.IGNORECASE),
+'best performance by an actor in a miniseries or motion picture made for television': re.compile(r'Best( performance)?( by an)? actor( in)?( a)? ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)?((/)|( ))?( or)?((television)|(TV))', re.IGNORECASE),
 'best performance by an actress in a television series - drama': re.compile(r'best( performance)?( by an)? actress( in a)? ((television)|(TV))( series)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best performance by an actor in a television series - drama': re.compile(r'best( performance)?( by an)? actor( in a)? ((television)|(TV))( series)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best performance by an actress in a television series - comedy or musical': re.compile(r'best( performance)?( by an)? actress( in a)?(,| )?((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actor in a television series - comedy or musical': re.compile(r'best( performance)?( by an)? actor( in a)?(,| )?((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
-'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actress( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE),
-'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actor( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE)}
+'best performance by an actress in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actress( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE),
+'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actor( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE)}
 
 #### ---------------------- Internal Functions ------------------------- ####
 
@@ -837,8 +837,22 @@ def start_interface():
                 print "Unknown command. Type help for commands list or exit to quit"
 
 def generate_graph(year):
-    hosts = get_hosts(year)
-    winners = get_winner(year)
+    if not os.path.exists(str('hosts%s.json'%year)):
+        with open(str('hosts%s.json'%year), "w") as hosts_json:
+            hosts = get_hosts(year)
+            hosts_dict = {}
+            hosts_dict["hosts"] = hosts
+            json.dump(hosts_dict, hosts_json)
+    else:  
+        with open(str('hosts%s.json'%year), "r") as hosts_json:      
+            hosts = json.load(hosts_json)["hosts"]
+    if not os.path.exists(str('winners%s.json'%year)):
+        with open(str('winners%s.json'%year), "w") as winners_json:
+            winners = get_winner(year)
+            json.dump(winners, winners_json)
+    else:  
+        with open(str('winners%s.json'%year), "r") as winners_json:      
+            winners = json.load(winners_json)  
     nominees = web_scraping.main(year)
     g = Graph()
     golden_globe = BNode()
@@ -868,20 +882,19 @@ def generate_graph(year):
         else:
             g.add( (w, RDF.type, FOAF.Movie ) )  
         #add nominees to the corresponding award
-        try:
-            for nominee in nominees[award]:
-                n = BNode()
-                g.add( (a, Literal("has nominee"), n ) )
-                g.add( (n, FOAF.name, Literal(nominee) ) )
-                if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
-                    #change this from person to actor/director
-                    g.add( (n, RDF.type, FOAF.Person ) ) 
-                elif 'score' in award or 'song' in award:
-                    g.add( (n, RDF.type, FOAF.Song ) )  
-                else:
-                    g.add( (n, RDF.type, FOAF.Movie ) )  
-        except:
-            continue
+        for nominee in nominees[award]:
+            if 'cecil' in award:
+                continue
+            n = BNode()
+            g.add( (a, Literal("has nominee"), n ) )
+            g.add( (n, FOAF.name, Literal(nominee) ) )
+            if 'actor' in award or 'actress' in award or 'director' in award:
+                #change this from person to actor/director
+                g.add( (n, RDF.type, FOAF.Person ) ) 
+            elif 'score' in award or 'song' in award:
+                g.add( (n, RDF.type, FOAF.Song ) )  
+            else:
+                g.add( (n, RDF.type, FOAF.Movie ) )  
     print g.serialize(format='n3')
                 
 def main():
