@@ -854,7 +854,7 @@ def generate_graph(year):
     else:  
         with open(str('winners%s.json'%year), "r") as winners_json:      
             winners = json.load(winners_json)  
-    nominees = web_scraping.main(year)
+    nominees = web_scraping.get_nominees(year)
     presenters = web_scraping.get_presenters(year)
 
 
