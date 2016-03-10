@@ -954,12 +954,12 @@ def visualize_graph(g):
 def print_names(g, type, award_name):
     if type == "award":
         for s1,p1,o1 in g.triples((None,  my_ontology.hasAward, None)):
-            for s2,p2,o2 in g.triples((o1, FOAF.name, None)):
+            for s2,p2,o2 in g.triples((o1, RDFS.label, None)):
                 print o2 
     elif type == "host":
         for s1,p1,o1 in g.triples((None,  movie_dbpedia.presenter, None)):
             for s2,p2,o2 in g.triples((o1, RDF.type, FOAF.Host)):
-                for s3,p3,o3 in g.triples((s2, FOAF.name, None)):
+                for s3,p3,o3 in g.triples((s2, RDFS.label, None)):
                     print o3 
     elif type == my_ontology.AwardWinner or type == movie_dbpedia.nominee or type == my_ontology.AwardPresenter:
         if award_name:
@@ -969,17 +969,17 @@ def print_names(g, type, award_name):
                     award_names.append(a)
             for award_name_iter in award_names:
                 for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
-                    for s1,p1,o1 in g.triples((o, FOAF.name, Literal(award_name_iter) ) ):
+                    for s1,p1,o1 in g.triples((o, RDFS.label, Literal(award_name_iter) ) ):
                         print "\n" + o1 + ":"
                         for s2,p2,o2 in g.triples( (s1, type, None)):
-                            for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
+                            for s3,p3,o3 in g.triples( (o2, RDFS.label, None) ):
                                 print o3 
         else:
             for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
-                for s1,p1,o1 in g.triples((o, FOAF.name, None)):  
+                for s1,p1,o1 in g.triples((o, RDFS.label, None)):  
                     print "\n" + o1 + ":"
                     for s2,p2,o2 in g.triples((s1, type, None)):
-                        for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
+                        for s3,p3,o3 in g.triples( (o2, RDFS.label, None) ):
                             print o3 
                 
 def main():
