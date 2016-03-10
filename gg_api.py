@@ -780,7 +780,7 @@ def start_interface():
     print "Enter help for a list of commonly-used commands"
     print "Special features include: Best Dressed and Best Joke"
     print "Databases available: 2013, 2015"
-    print "========================================="
+    print "=========================================="
     while True:
         s_input = raw_input()
         tokens = s_input.split()
@@ -946,8 +946,7 @@ def generate_graph(year):
     return g
 
 def print_graph(g): 
-    g.serialize(destination='graph.xml')
-    g.serialize(destination='n3graph.txt', format='n3')
+    print g.serialize(destination='graph.xml')
 
 def visualize_graph(g): 
     print g.serialize(format='n3')
@@ -970,7 +969,7 @@ def print_names(g, type, award_name):
                     award_names.append(a)
             for award_name_iter in award_names:
                 for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
-                    for s1,p1,o1 in g.triples((o, RDFS.label, Literal(award_name_iter) ) ):
+                    for s1,p1,o1 in g.triples((o, RDFS.lgabel, Literal(award_name_iter) ) ):
                         print "\n" + o1 + ":"
                         for s2,p2,o2 in g.triples( (s1, type, None)):
                             for s3,p3,o3 in g.triples( (o2, RDFS.label, None) ):
@@ -982,6 +981,7 @@ def print_names(g, type, award_name):
                     for s2,p2,o2 in g.triples((s1, type, None)):
                         for s3,p3,o3 in g.triples( (o2, RDFS.label, None) ):
                             print o3 
+    print "=========================================="
                 
 def main():
     '''This function calls your program. Typing "python gg_api.py"
