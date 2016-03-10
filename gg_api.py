@@ -1,7 +1,6 @@
 import json
 import time
 import nltk
-#from nltk.book import FreqDist
 from collections import Counter
 from nltk import FreqDist
 from nltk.corpus import names
