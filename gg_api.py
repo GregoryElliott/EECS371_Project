@@ -873,7 +873,6 @@ def generate_graph(year):
     #presenters = web_scraping.get_presenters(year)
     presenters = {}
 
-
     g = Graph()
     golden_globe = BNode()
     #host_predicate = BNode()
