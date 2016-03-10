@@ -753,14 +753,12 @@ def get_best_joke(year):
 
 def start_interface():
     def pr_help():
-        print "List of commands:"
+        print "List of commands (the only years available are 2013 and 2015):"
         print "hosts [year] \t Displays the hosts for a given year"
         print "awards [year] \t Displays the awards for a given year"
-        print "nominees [year] \t Displays the nominees for a given year"
-        print "winners [year] \t Displays the winners for a given year"
-        print "presenters [year] \t Displays the presenters for a given year"
-        print "bestdress [year] \t Displays best dressed individual for a given year"
-        print "bestjoke [year] \t Displays who gave the best joke for a given year"
+        print "nominees [year] [award] \t Displays the nominees for a given year and for a given award (leave award blank to see nominees for all awards)"
+        print "winners [year] [award] \t Displays the winner for a given year and for a given award (leave award blank to see the winner for all awards)"
+        print "presenters [year] [award] \t Displays the presenters for a given year and for a given award (leave award blank to see the presenters for all awards)"
         print "help \t Display all available of commands"
         print "exit \t Quits the program"
     def check_year(s):
@@ -770,6 +768,8 @@ def start_interface():
         return False
     print "Performing database initialization"
     pre_ceremony()
+    g2013 = generate_graph("2013")
+    #g2015 = generate_graph("2015")
     print "Welcome to GG Awards Parser v2.0!"
     print "=========================================="
     print "Enter help for a list of commonly-used commands"
@@ -779,9 +779,14 @@ def start_interface():
     while True:
         s_input = raw_input()
         tokens = s_input.split()
+        if len(tokens) == 0: 
+            continue
         if len(tokens) > 2:
-            print "Unknown command. Type help for commands list or exit to quit"
-        elif len(tokens) < 2:
+            tokens[2] = " ".join(tokens[2:])
+            print tokens[2]
+        #if len(tokens) > 3:
+            #print "Unknown command. Type help for commands list or exit to quit"
+        if len(tokens) < 2:
             if tokens[0] == "help":
                 pr_help()
             elif tokens[0] == "exit":
@@ -791,48 +796,58 @@ def start_interface():
         else:
             if tokens[0] == "hosts":
                 if check_year(tokens[1]):
+                    if tokens[1] == "2013":
+                        graph = g2013
+                    elif tokens[1] == "2015":
+                        graph = g2015
                     print "Fetching hosts..."
-                    hosts = get_hosts(tokens[1])
-                    for host in hosts:
-                        print host
+                    print "Hosts:"
+                    print_names(graph, "has host", None)
             elif tokens[0] == "nominees":
                 if check_year(tokens[1]):
                     print "Fetching nominees..."
-                    nominees = get_nominees(tokens[1])
-                    for nominee in nominees:
-                        print ""
-                        print nominee, ":"
-                        for n in nominees[nominee]:
-                            print n
+                    if tokens[1] == "2013":
+                        graph = g2013
+                    elif tokens[1] == "2015":
+                        graph = g2015
+                    print "Nominees:"
+                    if len(tokens) > 2: 
+                        print_names(graph, "has nominee", tokens[2])
+                    else:
+                        print_names(graph, "has nominee", None)
             elif tokens[0] == "awards":
                 if check_year(tokens[1]):
                     print "Fetching awards..."
-                    awards = get_awards(tokens[1])
-                    for award in awards:
-                        print award
+                    if tokens[1] == "2013":
+                        graph = g2013
+                    elif tokens[1] == "2015":
+                        graph = g2015
+                    print "Awards:"
+                    print_names(graph, "has award", None)
             elif tokens[0] == "winners":
                 if check_year(tokens[1]):
                     print "Fetching winners..."
-                    winners = get_winner(tokens[1])
-                    for winner in winners:
-                        print winner, ": \t", winners[winner]
+                    if tokens[1] == "2013":
+                        graph = g2013
+                    elif tokens[1] == "2015":
+                        graph = g2015
+                    print "Winners:"
+                    if len(tokens) > 2: 
+                        print_names(graph, "has winner", tokens[2])
+                    else:
+                        print_names(graph, "has winner", None)
             elif tokens[0] == "presenters":
                 if check_year(tokens[1]):
                     print "Fetching presenters..."
-                    presenters = get_presenters(tokens[1])
-                    for p in presenters:
-                        print ""
-                        print p, ":"
-                        for n in presenters[p]:
-                            print n
-            elif tokens[0] == "bestdress":
-                if check_year(tokens[1]):
-                    print "Fetching best dressed..."
-                    print get_best_dressed(tokens[1])
-            elif tokens[0] == "bestjoke":
-                if check_year(tokens[1]):
-                    print "Fetching best joke..."
-                    print get_best_joke(tokens[1])
+                    if tokens[1] == "2013":
+                        graph = g2013
+                    elif tokens[1] == "2015":
+                        graph = g2015
+                    print "Presenters:"
+                    if len(tokens) > 2: 
+                        print_names(graph, "has presenter", tokens[2], None)
+                    else:
+                        print_names(graph, "has presenter")    
             else:
                 print "Unknown command. Type help for commands list or exit to quit"
 
@@ -856,15 +871,15 @@ def generate_graph(year):
             winners = json.load(winners_json)  
     nominees = web_scraping.get_nominees(year)
     presenters = web_scraping.get_presenters(year)
-
-
     g = Graph()
     golden_globe = BNode()
+    #host_predicate = BNode()
+    #g.add( (host_predicate, RDF.predicate, Literal("has a host")))
     g.add( (golden_globe, RDF.type, Literal("award_show") ) )
     for host in hosts:
         #add host
         h = BNode()
-        g.add( (golden_globe, Literal("has a host"), h ) )
+        g.add( (golden_globe, Literal("has host"), h ) )
         g.add( (h, FOAF.name, Literal(host) ) ) 
         g.add( (h, RDF.type, FOAF.Person ) ) 
     for award in OFFICIAL_AWARDS:
@@ -899,7 +914,6 @@ def generate_graph(year):
                 g.add( (n, RDF.type, FOAF.Song ) )  
             else:
                 g.add( (n, RDF.type, FOAF.Movie ) )
-
         # add presenters to the corresponding award
         try:
             for presenter in presenters[award]:
@@ -909,9 +923,36 @@ def generate_graph(year):
                 g.add((p, RDF.type, FOAF.Person))
         except:
             continue
+    print_graph(g)
 
+    return g
+
+def print_graph(g): 
     print g.serialize(format='n3')
-    #print g.__contains__(golden_globe)
+
+def print_names(g, type, award_name):
+    if type == "has award" or type == "has host":
+        for s1,p1,o1 in g.triples( (None,  Literal(type), None) ):
+            for s2,p2,o2 in g.triples( (o1, FOAF.name, None) ):
+                print o2
+    elif award_name:
+        for a in REGEX_AWARDS:
+            if re.search(REGEX_AWARDS[a], award_name.lower()): 
+                award_name = a
+                break
+        for s1,p1,o1 in g.triples( (None, FOAF.name, Literal(award_name) ) ):
+            for s2,p2,o2 in g.triples( (s1,  Literal(type), None) ):
+                for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
+                    print "\n" + award_name + ":" 
+                    print o3 + "\n"
+    else:
+        for s,p,o in g.triples( (None, Literal("has award"), None) ):
+            for s1,p1,o1 in g.triples( (o, FOAF.name, None) ):  
+                print "\n" + o1 + ":"
+                for s2,p2,o2 in g.triples( (s1,  Literal(type), None) ):
+                    #print award
+                    for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
+                        print o3
                 
 def main():
     '''This function calls your program. Typing "python gg_api.py"
@@ -919,9 +960,10 @@ def main():
     and then run gg_api.main(). This is the second thing the TA will
     run when grading. Do NOT change the name of this function or
     what it returns.'''
-    pre_ceremony()
-    #start_interface()
-    generate_graph('2013')
+    #pre_ceremony()
+    start_interface()
+    #g = generate_graph('2013')
+    #print_names(g, "has winner", "best motion picture - drama")
 
     return
 
