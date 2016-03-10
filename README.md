@@ -1,4 +1,4 @@
-Greg Elliott, Greg Crow,
+Greg Elliott, Greg Crow, Corey Grief
 ### Set Up
 ```sh
 To get started using our system, follow these steps:
