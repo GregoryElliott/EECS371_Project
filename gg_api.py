@@ -896,7 +896,7 @@ def generate_graph(year):
         winner = winners[award]
         w = BNode()
         g.add((a, my_ontology.AwardWinner, w))
-        g.add((w, FOAF.label, Literal(winner)))
+        g.add((w, RDFS.label, Literal(winner)))
         if 'actor' in award or 'actress' in award in award:
             g.add((w, RDF.type, movieontology.Actor))
         elif 'cecil' in award:
