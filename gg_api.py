@@ -918,15 +918,15 @@ def generate_graph(year):
                 g.add((n, RDF.type, movie_dbpedia.TelevisionShow))
             else:
                 g.add((n, RDF.type, movie_dbpedia.film))
-    #     # add presenters to the corresponding award
-    #     try:
-    #         for presenter in presenters[award]:
-    #             p = BNode()
-    #             g.add((a, Literal("has presenter"), p))
-    #             g.add((p, FOAF.name, Literal(presenter)))
-    #             g.add((p, RDF.type, FOAF.Person))
-    #     except:
-    #         continue
+        # add presenters to the corresponding award
+        try:
+            for presenter in presenters[award]:
+                p = BNode()
+                g.add((a, my_ontology.AwardPresenter, p))
+                g.add((p, FOAF.name, Literal(presenter)))
+                g.add((p, RDF.type, FOAF.Person))
+        except:
+            continue
     print_graph(g)
 
     return g
