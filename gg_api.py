@@ -14,7 +14,7 @@ import string
 import pickle
 import os.path
 from awards_parse import *
-from rdflib import Graph, Literal, BNode, Namespace, RDF, URIRef
+from rdflib import Graph, Literal, BNode, Namespace, RDF, URIRef, RDFS
 from rdflib.namespace import DC, FOAF
 import requests
 from bs4 import BeautifulSoup
@@ -878,7 +878,7 @@ def generate_graph(year):
 
     g = Graph()
     golden_globe = BNode('Golden Globes')
-
+    g.add((golden_globe, RDFS.label, Literal('Golden Globes')))
     g.add((golden_globe, RDF.type, movie_dbpedia.TelevisionShow))
     g.add((golden_globe, FOAF.name, Literal('Golden Globes')))
 
@@ -887,12 +887,14 @@ def generate_graph(year):
         h = BNode()
         g.add((golden_globe, movie_dbpedia.presenter, h))
         g.add((h, FOAF.name, Literal(host)))
+        g.add((h, RDFS.label, Literal(host)))
         g.add((h, RDF.type, FOAF.Host))
     for award in OFFICIAL_AWARDS:
         #add award
         a = BNode()
         g.add((golden_globe, my_ontology.hasAward, a))
         g.add((a, FOAF.name, Literal(award)))
+        g.add((a, RDFS.label, Literal(award)))
         g.add((a, RDF.type, movieontology.Award))
         #add winner to the corresponding award
         winner = winners[award]
@@ -910,6 +912,7 @@ def generate_graph(year):
             n = BNode()
             g.add((a, movie_dbpedia.nominee, n))
             g.add((n, FOAF.name, Literal(nominee)))
+            g.add((n, RDFS.label, Literal(nominee)))
             if 'actor' in award or 'actress' in award:
                 g.add((n, RDF.type, movie_dbpedia.Actor))
             elif 'director' in award:
@@ -919,15 +922,16 @@ def generate_graph(year):
                 g.add((n, RDF.type, movie_dbpedia.TelevisionShow))
             else:
                 g.add((n, RDF.type, movie_dbpedia.film))
-    #     # add presenters to the corresponding award
-    #     try:
-    #         for presenter in presenters[award]:
-    #             p = BNode()
-    #             g.add((a, Literal("has presenter"), p))
-    #             g.add((p, FOAF.name, Literal(presenter)))
-    #             g.add((p, RDF.type, FOAF.Person))
-    #     except:
-    #         continue
+        # add presenters to the corresponding award
+        try:
+            for presenter in presenters[award]:
+                p = BNode()
+                g.add((a, my_ontology.AwardPresenter, p))
+                g.add((p, FOAF.name, Literal(presenter)))
+                g.add((p, RDFS.label, Literal(presenter)))
+                g.add((p, RDF.type, FOAF.Person))
+        except:
+            continue
     print_graph(g)
 
     return g

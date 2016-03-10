@@ -7,3 +7,9 @@
 	<rdfs:label xml:lang="en">presenter</rdfs:label>
         <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Award"/>
 </owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:ID="AwardPresenter">
+	<rdfs:label xml:lang="en">presenter</rdfs:label>
+        <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Award"/>
+        <rdfs:domain rf:resource="http://dbpedia.org/ontology/person"/>
+</owl:ObjectProperty>
