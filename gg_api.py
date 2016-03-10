@@ -871,58 +871,63 @@ def generate_graph(year):
             winners = json.load(winners_json)  
     nominees = web_scraping.get_nominees(year)
     presenters = web_scraping.get_presenters(year)
+
+    movie_dbpedia = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/dbpedia_3.7.owl')
+    movieontology = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/movieontology.owl')
+    my_ontology = Namespace('my_ontology')
     g = Graph()
-    golden_globe = BNode()
-    #host_predicate = BNode()
-    #g.add( (host_predicate, RDF.predicate, Literal("has a host")))
-    g.add( (golden_globe, RDF.type, Literal("award_show") ) )
+    golden_globe = BNode('Golden Globes')
+
+    g.add((golden_globe, RDF.type, movie_dbpedia.TelevisionShow))
+    g.add((golden_globe, FOAF.name, Literal('Golden Globes')))
+
     for host in hosts:
         #add host
         h = BNode()
-        g.add( (golden_globe, Literal("has host"), h ) )
-        g.add( (h, FOAF.name, Literal(host) ) ) 
-        g.add( (h, RDF.type, FOAF.Person ) ) 
+        g.add((golden_globe, movie_dbpedia.presenter, h))
+        g.add((h, FOAF.name, Literal(host)))
+        g.add((h, RDF.type, FOAF.Host))
     for award in OFFICIAL_AWARDS:
         #add award
         a = BNode()
-        g.add( (golden_globe, Literal("has award"), a ) )
-        g.add( (a, FOAF.name, Literal(award) ) ) 
-        g.add( (a, RDF.type, FOAF.Award ) ) 
+        g.add((golden_globe, my_ontology.hasAward, a))
+        g.add((a, FOAF.name, Literal(award)))
+        g.add((a, RDF.type, movieontology.Award))
         #add winner to the corresponding award
-        winner = winners[award]
-        w = BNode()
-        g.add( (a, Literal("has winner"), w ) )
-        g.add( (w, FOAF.name, Literal(winner) ) )
-        if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
-            #change this from person to actor/director
-            g.add( (w, RDF.type, FOAF.Person ) ) 
-        elif 'score' in award or 'song' in award:
-            g.add( (w, RDF.type, FOAF.Song ) )  
-        else:
-            g.add( (w, RDF.type, FOAF.Movie ) )  
-        #add nominees to the corresponding award
-        for nominee in nominees[award]:
-            if 'cecil' in award:
-                continue
-            n = BNode()
-            g.add( (a, Literal("has nominee"), n ) )
-            g.add( (n, FOAF.name, Literal(nominee) ) )
-            if 'actor' in award or 'actress' in award or 'director' in award:
-                #change this from person to actor/director
-                g.add( (n, RDF.type, FOAF.Person ) ) 
-            elif 'score' in award or 'song' in award:
-                g.add( (n, RDF.type, FOAF.Song ) )  
-            else:
-                g.add( (n, RDF.type, FOAF.Movie ) )
-        # add presenters to the corresponding award
-        try:
-            for presenter in presenters[award]:
-                p = BNode()
-                g.add((a, Literal("has presenter"), p))
-                g.add((p, FOAF.name, Literal(presenter)))
-                g.add((p, RDF.type, FOAF.Person))
-        except:
-            continue
+        # winner = winners[award]
+        # w = BNode()
+        # g.add( (a, Literal("has winner"), w ) )
+        # g.add( (w, FOAF.name, Literal(winner) ) )
+        # if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
+        #     #change this from person to actor/director
+        #     g.add( (w, RDF.type, FOAF.Person ) )
+        # elif 'score' in award or 'song' in award:
+        #     g.add( (w, RDF.type, FOAF.Song ) )
+        # else:
+        #     g.add( (w, RDF.type, FOAF.Movie ) )
+    #     #add nominees to the corresponding award
+    #     for nominee in nominees[award]:
+    #         if 'cecil' in award:
+    #             continue
+    #         n = BNode()
+    #         g.add( (a, Literal("has nominee"), n ) )
+    #         g.add( (n, FOAF.name, Literal(nominee) ) )
+    #         if 'actor' in award or 'actress' in award or 'director' in award:
+    #             #change this from person to actor/director
+    #             g.add( (n, RDF.type, FOAF.Person ) )
+    #         elif 'score' in award or 'song' in award:
+    #             g.add( (n, RDF.type, FOAF.Song ) )
+    #         else:
+    #             g.add( (n, RDF.type, FOAF.Movie ) )
+    #     # add presenters to the corresponding award
+    #     try:
+    #         for presenter in presenters[award]:
+    #             p = BNode()
+    #             g.add((a, Literal("has presenter"), p))
+    #             g.add((p, FOAF.name, Literal(presenter)))
+    #             g.add((p, RDF.type, FOAF.Person))
+    #     except:
+    #         continue
     print_graph(g)
 
     return g
@@ -932,8 +937,8 @@ def print_graph(g):
 
 def print_names(g, type, award_name):
     if type == "has award" or type == "has host":
-        for s1,p1,o1 in g.triples( (None,  Literal(type), None) ):
-            for s2,p2,o2 in g.triples( (o1, FOAF.name, None) ):
+        for s1,p1,o1 in g.triples((None,  Literal(type), None)):
+            for s2,p2,o2 in g.triples((o1, FOAF.name, None)):
                 print o2
     elif award_name:
         for a in REGEX_AWARDS:
