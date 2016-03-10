@@ -874,7 +874,7 @@ def generate_graph(year):
 
     movie_dbpedia = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/dbpedia_3.7.owl')
     movieontology = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/movieontology.owl')
-    my_ontology = Namespace('my_ontology')
+    my_ontology = Namespace('https://raw.githubusercontent.com/GregoryElliott/EECS371_Project/master/my_ontology.owl')
     g = Graph()
     golden_globe = BNode('Golden Globes')
 
