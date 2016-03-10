@@ -1,0 +1,4 @@
+*.pyc
+.idea/*
+*.json
+dbpedia_3.7.owl.txt
