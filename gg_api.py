@@ -879,27 +879,24 @@ def generate_graph(year):
     golden_globe = BNode('Golden Globes')
     g.add((golden_globe, RDFS.label, Literal('Golden Globes')))
     g.add((golden_globe, RDF.type, movie_dbpedia.TelevisionShow))
-    g.add((golden_globe, FOAF.name, Literal('Golden Globes')))
 
     for host in hosts:
         #add host
         h = BNode()
         g.add((golden_globe, movie_dbpedia.presenter, h))
-        g.add((h, FOAF.name, Literal(host)))
         g.add((h, RDFS.label, Literal(host)))
         g.add((h, RDF.type, FOAF.Host))
     for award in OFFICIAL_AWARDS:
         #add award
         a = BNode()
         g.add((golden_globe, my_ontology.hasAward, a))
-        g.add((a, FOAF.name, Literal(award)))
         g.add((a, RDFS.label, Literal(award)))
         g.add((a, RDF.type, movieontology.Award))
         #add winner to the corresponding award
         winner = winners[award]
         w = BNode()
         g.add((a, my_ontology.AwardWinner, w))
-        g.add((w, FOAF.name, Literal(winner)))
+        g.add((w, FOAF.label, Literal(winner)))
         if 'actor' in award or 'actress' in award in award:
             g.add((w, RDF.type, movieontology.Actor))
         elif 'cecil' in award:
@@ -910,7 +907,6 @@ def generate_graph(year):
         for nominee in nominees[award]:
             n = BNode()
             g.add((a, movie_dbpedia.nominee, n))
-            g.add((n, FOAF.name, Literal(nominee)))
             g.add((n, RDFS.label, Literal(nominee)))
             if 'actor' in award or 'actress' in award:
                 g.add((n, RDF.type, movie_dbpedia.Actor))
@@ -926,7 +922,6 @@ def generate_graph(year):
             for presenter in presenters[award]:
                 p = BNode()
                 g.add((a, my_ontology.AwardPresenter, p))
-                g.add((p, FOAF.name, Literal(presenter)))
                 g.add((p, RDFS.label, Literal(presenter)))
                 g.add((p, RDF.type, FOAF.Person))
         except:
