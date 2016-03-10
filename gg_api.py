@@ -683,6 +683,10 @@ def get_presenters(year):
 
     return presenters
 
+movie_dbpedia = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/dbpedia_3.7.owl')
+movieontology = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/movieontology.owl')
+my_ontology = Namespace('https://raw.githubusercontent.com/GregoryElliott/EECS371_Project/master/my_ontology.owl')
+
 def pre_ceremony():
     '''This function loads/fetches/processes any data your program
     will use, and stores that data in your DB or in a json, csv, or
@@ -802,7 +806,7 @@ def start_interface():
                         graph = g2015
                     print "Fetching hosts..."
                     print "Hosts:"
-                    print_names(graph, "has host", None)
+                    print_names(graph, "host", None)
             elif tokens[0] == "nominees":
                 if check_year(tokens[1]):
                     print "Fetching nominees..."
@@ -812,9 +816,9 @@ def start_interface():
                         graph = g2015
                     print "Nominees:"
                     if len(tokens) > 2: 
-                        print_names(graph, "has nominee", tokens[2])
+                        print_names(graph, movie_dbpedia.nominee, tokens[2])
                     else:
-                        print_names(graph, "has nominee", None)
+                        print_names(graph, movie_dbpedia.nominee, None)
             elif tokens[0] == "awards":
                 if check_year(tokens[1]):
                     print "Fetching awards..."
@@ -823,7 +827,7 @@ def start_interface():
                     elif tokens[1] == "2015":
                         graph = g2015
                     print "Awards:"
-                    print_names(graph, "has award", None)
+                    print_names(graph, "award", None)
             elif tokens[0] == "winners":
                 if check_year(tokens[1]):
                     print "Fetching winners..."
@@ -833,9 +837,9 @@ def start_interface():
                         graph = g2015
                     print "Winners:"
                     if len(tokens) > 2: 
-                        print_names(graph, "has winner", tokens[2])
+                        print_names(graph, my_ontology.AwardWinner, tokens[2])
                     else:
-                        print_names(graph, "has winner", None)
+                        print_names(graph, my_ontology.AwardWinner, None)
             elif tokens[0] == "presenters":
                 if check_year(tokens[1]):
                     print "Fetching presenters..."
@@ -872,9 +876,6 @@ def generate_graph(year):
     nominees = web_scraping.get_nominees(year)
     presenters = web_scraping.get_presenters(year)
 
-    movie_dbpedia = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/dbpedia_3.7.owl')
-    movieontology = Namespace('https://raw.githubusercontent.com/wiki/ontop/ontop/attachments/Example_MovieOntology/movieontology.owl')
-    my_ontology = Namespace('https://raw.githubusercontent.com/GregoryElliott/EECS371_Project/master/my_ontology.owl')
     g = Graph()
     golden_globe = BNode('Golden Globes')
 
@@ -935,28 +936,35 @@ def print_graph(g):
     print g.serialize(destination='graph.xml')
 
 def print_names(g, type, award_name):
-    if type == "has award" or type == "has host":
-        for s1,p1,o1 in g.triples((None,  Literal(type), None)):
+    if type == "award":
+        for s1,p1,o1 in g.triples((None,  my_ontology.hasAward, None)):
             for s2,p2,o2 in g.triples((o1, FOAF.name, None)):
-                print o2
-    elif award_name:
-        for a in REGEX_AWARDS:
-            if re.search(REGEX_AWARDS[a], award_name.lower()): 
-                award_name = a
-                break
-        for s1,p1,o1 in g.triples( (None, FOAF.name, Literal(award_name) ) ):
-            for s2,p2,o2 in g.triples( (s1,  Literal(type), None) ):
-                for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
-                    print "\n" + award_name + ":" 
-                    print o3 + "\n"
-    else:
-        for s,p,o in g.triples( (None, Literal("has award"), None) ):
-            for s1,p1,o1 in g.triples( (o, FOAF.name, None) ):  
-                print "\n" + o1 + ":"
-                for s2,p2,o2 in g.triples( (s1,  Literal(type), None) ):
-                    #print award
-                    for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
-                        print o3
+                print o2 
+    elif type == "host":
+        for s1,p1,o1 in g.triples((None,  movie_dbpedia.presenter, None)):
+            for s2,p2,o2 in g.triples((o1, RDF.type, FOAF.Host)):
+                for s3,p3,o3 in g.triples((s2, FOAF.name, None)):
+                    print o3 
+    elif type == my_ontology.AwardWinner or type == movie_dbpedia.nominee or type == "nominees":
+        print "here"
+        if award_name:
+            for a in REGEX_AWARDS:
+                if re.search(REGEX_AWARDS[a], award_name.lower()): 
+                    award_name = a
+                    break
+            for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
+                for s1,p1,o1 in g.triples((o, FOAF.name, Literal(award_name) ) ):
+                    print "\n" + o1 + ":"
+                    for s2,p2,o2 in g.triples( (s1, type, None)):
+                        for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
+                            print o3 
+        else:
+            for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
+                for s1,p1,o1 in g.triples((o, FOAF.name, None)):  
+                    print "\n" + o1 + ":"
+                    for s2,p2,o2 in g.triples((s1, type, None)):
+                        for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
+                            print o3 
                 
 def main():
     '''This function calls your program. Typing "python gg_api.py"
