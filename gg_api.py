@@ -905,12 +905,13 @@ def generate_graph(year):
             for presenter in presenters[award]:
                 p = BNode()
                 g.add((a, Literal("has presenter"), p))
-                g.add((p, FOAF.name, Literal(presenters)))
+                g.add((p, FOAF.name, Literal(presenter)))
                 g.add((p, RDF.type, FOAF.Person))
         except:
             continue
 
     print g.serialize(format='n3')
+    #print g.__contains__(golden_globe)
                 
 def main():
     '''This function calls your program. Typing "python gg_api.py"
