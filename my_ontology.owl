@@ -1,0 +1,9 @@
+<owl:ObjectProperty rdf:ID="hasAward">
+	<rdfs:label xml:lang="en">presenter</rdfs:label>
+        <rdfs:range rdf:resource="http://dbpedia.org/ontology/Award"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:ID="AwardWinner">
+	<rdfs:label xml:lang="en">presenter</rdfs:label>
+        <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Award"/>
+</owl:ObjectProperty>

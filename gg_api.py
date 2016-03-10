@@ -894,17 +894,17 @@ def generate_graph(year):
         g.add((a, FOAF.name, Literal(award)))
         g.add((a, RDF.type, movieontology.Award))
         #add winner to the corresponding award
-        # winner = winners[award]
-        # w = BNode()
-        # g.add( (a, Literal("has winner"), w ) )
-        # g.add( (w, FOAF.name, Literal(winner) ) )
-        # if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
-        #     #change this from person to actor/director
-        #     g.add( (w, RDF.type, FOAF.Person ) )
-        # elif 'score' in award or 'song' in award:
-        #     g.add( (w, RDF.type, FOAF.Song ) )
-        # else:
-        #     g.add( (w, RDF.type, FOAF.Movie ) )
+        winner = winners[award]
+        w = BNode()
+        g.add((a, Literal("has winner"), w ))
+        g.add( (w, FOAF.name, Literal(winner) ) )
+        if 'actor' in award or 'actress' in award or 'director' in award or 'cecil' in award:
+            #change this from person to actor/director
+            g.add( (w, RDF.type, FOAF.Person ) )
+        elif 'score' in award or 'song' in award:
+            g.add( (w, RDF.type, FOAF.Song ) )
+        else:
+            g.add( (w, RDF.type, FOAF.Movie ) )
     #     #add nominees to the corresponding award
     #     for nominee in nominees[award]:
     #         if 'cecil' in award:

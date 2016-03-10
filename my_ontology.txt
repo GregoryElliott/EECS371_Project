@@ -1,4 +1,0 @@
-<owl:ObjectProperty rdf:ID="hasAward">
-	<rdfs:label xml:lang="en">presenter</rdfs:label>
-        <rdfs:domain rdf:resource="http://dbpedia.org/ontology/Award"/>
-</owl:ObjectProperty>
