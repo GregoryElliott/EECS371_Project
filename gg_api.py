@@ -900,24 +900,24 @@ def generate_graph(year):
         g.add((w, FOAF.name, Literal(winner)))
         if 'actor' in award or 'actress' in award in award:
             g.add((w, RDF.type, movieontology.Actor))
-        if 'cecil' in award:
+        elif 'cecil' in award:
             g.add((w, RDF.type, FOAF.Person))
         else:
             g.add((w, RDF.type, FOAF.Movie))
-    #     #add nominees to the corresponding award
-    #     for nominee in nominees[award]:
-    #         if 'cecil' in award:
-    #             continue
-    #         n = BNode()
-    #         g.add( (a, Literal("has nominee"), n ) )
-    #         g.add( (n, FOAF.name, Literal(nominee) ) )
-    #         if 'actor' in award or 'actress' in award or 'director' in award:
-    #             #change this from person to actor/director
-    #             g.add( (n, RDF.type, FOAF.Person ) )
-    #         elif 'score' in award or 'song' in award:
-    #             g.add( (n, RDF.type, FOAF.Song ) )
-    #         else:
-    #             g.add( (n, RDF.type, FOAF.Movie ) )
+        #add nominees to the corresponding award
+        for nominee in nominees[award]:
+            n = BNode()
+            g.add((a, movie_dbpedia.nominee, n))
+            g.add((n, FOAF.name, Literal(nominee)))
+            if 'actor' in award or 'actress' in award:
+                g.add((n, RDF.type, movie_dbpedia.Actor))
+            elif 'director' in award:
+                #change this from person to actor/director
+                g.add((n, RDF.type, movieontology.Film_Director))
+            elif 'tv' in award:
+                g.add((n, RDF.type, movie_dbpedia.TelevisionShow))
+            else:
+                g.add((n, RDF.type, movie_dbpedia.film))
     #     # add presenters to the corresponding award
     #     try:
     #         for presenter in presenters[award]:
