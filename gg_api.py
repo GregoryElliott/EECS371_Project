@@ -870,9 +870,7 @@ def generate_graph(year):
         with open(str('winners%s.json'%year), "r") as winners_json:      
             winners = json.load(winners_json)  
     nominees = web_scraping.get_nominees(year)
-    #presenters = web_scraping.get_presenters(year)
-    presenters = {}
-
+    presenters = web_scraping.get_presenters(year)
     g = Graph()
     golden_globe = BNode()
     #host_predicate = BNode()
@@ -921,7 +919,7 @@ def generate_graph(year):
             for presenter in presenters[award]:
                 p = BNode()
                 g.add((a, Literal("has presenter"), p))
-                g.add((p, FOAF.name, Literal(presenters)))
+                g.add((p, FOAF.name, Literal(presenter)))
                 g.add((p, RDF.type, FOAF.Person))
         except:
             continue
