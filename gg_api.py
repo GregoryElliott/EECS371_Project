@@ -48,7 +48,7 @@ OFFICIAL_AWARDS = [
     'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television']
 
 REGEX_AWARDS = {
-#'cecil b. demille award': re.compile(r'((cecil)|(cecil demille)|(cecil b. demille)|(b. demille)|(demille))( award)?', re.IGNORECASE),
+'cecil b. demille award': re.compile(r'((cecil)|(cecil demille)|(cecil b. demille)|(b. demille)|(demille))( award)?', re.IGNORECASE),
 'best motion picture - drama': re.compile(r'(golden globe for )?best motion picture(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best motion picture - comedy or musical': re.compile(r'(golden globe for )?best motion picture(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actress in a motion picture - drama': re.compile(r'best( performance by an)? actress(( in a)|( -))?( motion picture)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
@@ -67,7 +67,7 @@ REGEX_AWARDS = {
 'best television series - comedy or musical': re.compile(r'best ((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best miniseries or motion picture made for television': re.compile(r'best ((((TV)|(television)) ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture)))|(((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)? ((television)|(TV))))', re.IGNORECASE),
 'best performance by an actress in a miniseries or motion picture made for television': re.compile(r'best( performance)?( by an)? actress( in)?( a)?(,)? ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)?((/)|( ))?(or )?((television)|(TV))', re.IGNORECASE),
-'best performance by an actor in a miniseries or motion picture made for television': re.compile(r'Best( performance)?( by an)? actor( in)?( a)? ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)?((/)|( ))?( or)?((television)|(TV))', re.IGNORECASE),
+'best performance by an actor in a miniseries or motion picture made for television': re.compile(r'best( performance)?( by an)? actor( in)?( a)? ((mini-series)|(miniseries)|(miniseries or motion picture)|(mini-series or motion picture)|(motion picture))( made for)?((/)|( ))?( or)?((television)|(TV))', re.IGNORECASE),
 'best performance by an actress in a television series - drama': re.compile(r'best( performance)?( by an)? actress( in a)? ((television)|(TV))( series)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best performance by an actor in a television series - drama': re.compile(r'best( performance)?( by an)? actor( in a)? ((television)|(TV))( series)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best performance by an actress in a television series - comedy or musical': re.compile(r'best( performance)?( by an)? actress( in a)?(,| )?((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
@@ -763,6 +763,7 @@ def start_interface():
         print "nominees [year] [award] \t Displays the nominees for a given year and for a given award (leave award blank to see nominees for all awards)"
         print "winners [year] [award] \t Displays the winner for a given year and for a given award (leave award blank to see the winner for all awards)"
         print "presenters [year] [award] \t Displays the presenters for a given year and for a given award (leave award blank to see the presenters for all awards)"
+        print "visualize [year] \t Displays the entire graph for a given year"
         print "help \t Display all available of commands"
         print "exit \t Quits the program"
     def check_year(s):
@@ -786,11 +787,8 @@ def start_interface():
         if len(tokens) == 0: 
             continue
         if len(tokens) > 2:
-            tokens[2] = " ".join(tokens[2:])
-            print tokens[2]
-        #if len(tokens) > 3:
-            #print "Unknown command. Type help for commands list or exit to quit"
-        if len(tokens) < 2:
+            tokens[2] = " ".join(tokens[2:])        
+        if len(tokens) < 2:            
             if tokens[0] == "help":
                 pr_help()
             elif tokens[0] == "exit":
@@ -807,6 +805,13 @@ def start_interface():
                     print "Fetching hosts..."
                     print "Hosts:"
                     print_names(graph, "host", None)
+            elif tokens[0] == "visualize":
+                if check_year(tokens[1]):
+                    if tokens[1] == "2013":
+                        graph = g2013
+                    elif tokens[1] == "2015":
+                        graph = g2015
+                    visualize_graph(graph)
             elif tokens[0] == "nominees":
                 if check_year(tokens[1]):
                     print "Fetching nominees..."
@@ -849,14 +854,13 @@ def start_interface():
                         graph = g2015
                     print "Presenters:"
                     if len(tokens) > 2: 
-                        print_names(graph, "has presenter", tokens[2], None)
+                        print_names(graph, my_ontology.AwardPresenter, tokens[2])
                     else:
-                        print_names(graph, "has presenter")    
+                        print_names(graph, my_ontology.AwardPresenter, None)    
             else:
                 print "Unknown command. Type help for commands list or exit to quit"
 
 def generate_graph(year):
-
     if not os.path.exists(str('hosts%s.json'%year)):
         with open(str('hosts%s.json'%year), "w") as hosts_json:
             hosts = get_hosts(year)
@@ -924,7 +928,12 @@ def generate_graph(year):
                 g.add((n, RDF.type, movie_dbpedia.film))
         # add presenters to the corresponding award
         try:
-            for presenter in presenters[award]:
+            presenter_award = award
+            for p in presenters:
+                if re.search(REGEX_AWARDS[award.lower()], p): 
+                    presenter_award = p
+                    break
+            for presenter in presenters[presenter_award]:
                 p = BNode()
                 g.add((a, my_ontology.AwardPresenter, p))
                 g.add((p, FOAF.name, Literal(presenter)))
@@ -939,6 +948,9 @@ def generate_graph(year):
 def print_graph(g): 
     print g.serialize(destination='graph.xml')
 
+def visualize_graph(g): 
+    print g.serialize(format='n3')
+
 def print_names(g, type, award_name):
     if type == "award":
         for s1,p1,o1 in g.triples((None,  my_ontology.hasAward, None)):
@@ -949,19 +961,19 @@ def print_names(g, type, award_name):
             for s2,p2,o2 in g.triples((o1, RDF.type, FOAF.Host)):
                 for s3,p3,o3 in g.triples((s2, FOAF.name, None)):
                     print o3 
-    elif type == my_ontology.AwardWinner or type == movie_dbpedia.nominee or type == "nominees":
-        print "here"
+    elif type == my_ontology.AwardWinner or type == movie_dbpedia.nominee or type == my_ontology.AwardPresenter:
         if award_name:
+            award_names = []
             for a in REGEX_AWARDS:
                 if re.search(REGEX_AWARDS[a], award_name.lower()): 
-                    award_name = a
-                    break
-            for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
-                for s1,p1,o1 in g.triples((o, FOAF.name, Literal(award_name) ) ):
-                    print "\n" + o1 + ":"
-                    for s2,p2,o2 in g.triples( (s1, type, None)):
-                        for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
-                            print o3 
+                    award_names.append(a)
+            for award_name_iter in award_names:
+                for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
+                    for s1,p1,o1 in g.triples((o, FOAF.name, Literal(award_name_iter) ) ):
+                        print "\n" + o1 + ":"
+                        for s2,p2,o2 in g.triples( (s1, type, None)):
+                            for s3,p3,o3 in g.triples( (o2, FOAF.name, None) ):
+                                print o3 
         else:
             for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
                 for s1,p1,o1 in g.triples((o, FOAF.name, None)):  
@@ -976,11 +988,7 @@ def main():
     and then run gg_api.main(). This is the second thing the TA will
     run when grading. Do NOT change the name of this function or
     what it returns.'''
-    #pre_ceremony()
     start_interface()
-    #g = generate_graph('2013')
-    #print_names(g, "has winner", "best motion picture - drama")
-
     return
 
 if __name__ == '__main__':
