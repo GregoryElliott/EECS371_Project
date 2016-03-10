@@ -946,7 +946,8 @@ def generate_graph(year):
     return g
 
 def print_graph(g): 
-    print g.serialize(destination='graph.xml')
+    g.serialize(destination='graph.xml')
+    g.serialize(destination='n3graph.txt', format='n3')
 
 def visualize_graph(g): 
     print g.serialize(format='n3')
