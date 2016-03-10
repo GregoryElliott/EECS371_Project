@@ -71,7 +71,7 @@ REGEX_AWARDS = {
 'best performance by an actress in a television series - comedy or musical': re.compile(r'best( performance)?( by an)? actress( in a)?(,| )?((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actor in a television series - comedy or musical': re.compile(r'best( performance)?( by an)? actor( in a)?(,| )?((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actress in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actress( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE),
-'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actor( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE)}s
+'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actor( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE)}
 
 #### ---------------------- Internal Functions ------------------------- ####
 
