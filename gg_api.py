@@ -933,7 +933,7 @@ def generate_graph(year):
     return g
 
 def print_graph(g): 
-    print g.serialize(format='n3')
+    print g.serialize(destination='graph.xml')
 
 def print_names(g, type, award_name):
     if type == "has award" or type == "has host":
