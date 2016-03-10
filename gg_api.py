@@ -23,7 +23,6 @@ import web_scraping
 IGNORE_WORDS = ['best', 'look', 'television', 'tv', 'movie', 'musical', 'globes', 'congrats', 'congratulations', 'globe', 'i\'m', 'motion', 'picture', 'actor', 'actress', 'drama', 'comedy', 'rt', 'demille', 'award']
     
 OFFICIAL_AWARDS = [
-    #'cecil b. demille award',
     'best motion picture - drama',
     'best performance by an actress in a motion picture - drama',
     'best performance by an actor in a motion picture - drama',
@@ -48,7 +47,6 @@ OFFICIAL_AWARDS = [
     'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television']
 
 REGEX_AWARDS = {
-'cecil b. demille award': re.compile(r'((cecil)|(cecil demille)|(cecil b. demille)|(b. demille)|(demille))( award)?', re.IGNORECASE),
 'best motion picture - drama': re.compile(r'(golden globe for )?best motion picture(,)?(:)?( )?(-)? drama', re.IGNORECASE),
 'best motion picture - comedy or musical': re.compile(r'(golden globe for )?best motion picture(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actress in a motion picture - drama': re.compile(r'best( performance by an)? actress(( in a)|( -))?( motion picture)?(,)?(:)?( )?(-)? drama', re.IGNORECASE),
@@ -73,7 +71,7 @@ REGEX_AWARDS = {
 'best performance by an actress in a television series - comedy or musical': re.compile(r'best( performance)?( by an)? actress( in a)?(,| )?((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actor in a television series - comedy or musical': re.compile(r'best( performance)?( by an)? actor( in a)?(,| )?((television)|(TV))( series)?(,)?(:)?( )?(-)? comedy', re.IGNORECASE),
 'best performance by an actress in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actress( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE),
-'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actor( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE)}
+'best performance by an actor in a supporting role in a series, miniseries or motion picture made for television': re.compile(r'best( supporting)?( performance by an)? actor( in a)?( supporting)?( role)?( in a)?(,)?(:)?( )?(-)?( motion picture)?( series)?( mini-series)?( for)?((television)|(TV))', re.IGNORECASE)}s
 
 #### ---------------------- Internal Functions ------------------------- ####
 
@@ -907,7 +905,7 @@ def generate_graph(year):
         elif 'cecil' in award:
             g.add((w, RDF.type, FOAF.Person))
         else:
-            g.add((w, RDF.type, FOAF.Movie))
+            g.add((w, RDF.type, FOAF.Movie)) 
         #add nominees to the corresponding award
         for nominee in nominees[award]:
             n = BNode()
@@ -921,7 +919,7 @@ def generate_graph(year):
             elif 'tv' in award:
                 g.add((n, RDF.type, movie_dbpedia.TelevisionShow))
             else:
-                g.add((n, RDF.type, movie_dbpedia.film))
+                g.add((n, RDF.type, movie_dbpedia.film))       
         # add presenters to the corresponding award
         try:
             presenter_award = award
@@ -935,7 +933,7 @@ def generate_graph(year):
                 g.add((p, RDFS.label, Literal(presenter)))
                 g.add((p, RDF.type, FOAF.Person))
         except:
-            continue
+            continue               
     print_graph(g)
 
     return g
@@ -964,7 +962,7 @@ def print_names(g, type, award_name):
                     award_names.append(a)
             for award_name_iter in award_names:
                 for s,p,o in g.triples( (None, my_ontology.hasAward, None) ):
-                    for s1,p1,o1 in g.triples((o, RDFS.lgabel, Literal(award_name_iter) ) ):
+                    for s1,p1,o1 in g.triples((o, RDFS.label, Literal(award_name_iter) ) ):
                         print "\n" + o1 + ":"
                         for s2,p2,o2 in g.triples( (s1, type, None)):
                             for s3,p3,o3 in g.triples( (o2, RDFS.label, None) ):
