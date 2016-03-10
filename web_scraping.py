@@ -40,7 +40,7 @@ def get_nominees(year):
                     except:
                         continue
 
-    pprint.pprint(categories_and_nominees_dict)
+    #pprint.pprint(categories_and_nominees_dict)
     return categories_and_nominees_dict
 
 GOLDEN_GLOBE_YEAR_OFFSET = 1943
@@ -67,7 +67,7 @@ def get_presenters(year):
             continue
         presenter_dict[re.split('with ', full_str)[1]] = re.split('with|introduced', full_str)[0].strip().split(' and')
 
-    pprint.pprint(presenter_dict)
+    #pprint.pprint(presenter_dict)
     return presenter_dict
 
 
